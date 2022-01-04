@@ -9,5 +9,11 @@ export default StyleSheet.create({
 
     bigText: {
         fontSize: 48
+    },
+
+    input: {
+        borderWidth: 1,
+        borderColor: "black",
+        padding: 5
     }
 });

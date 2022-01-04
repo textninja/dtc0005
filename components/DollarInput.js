@@ -1,22 +1,41 @@
 import React, { useState, useRef } from 'react';
-import { TextInput } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity  } from 'react-native';
 import styles from '../styles';
 
-function moneyFormat(input) {
-    let amt = parseInt(input.replace(/[^0-9.]/g, ""), 10);
-    if (isNaN(amt)) amt = 0;
-    return "$" + amt.toFixed(2);
-}
-
 export default function DollarInput(props) {
-    const [val, setVal] = useState("0");
-    const shownValue = moneyFormat(val);
+    const [dollars, setDollars] = useState(0);
+    const hiddenInputRef = useRef();
+
+    const formattedDollars = dollars && !isNaN(dollars)
+        ? (
+            <>
+                <Text style={{color:'#c0c0c0'}}>$</Text>{
+                 dollars
+                }<Text style={{color:'#c0c0c0'}}>.00</Text>
+            </>
+          )
+        : (<Text style={{color:'#c0c0c0'}}>$</Text>);
 
     return (
-        <TextInput
-            style={styles.bigText}
-            {...{...props, value: shownValue}}
-            onChangeText={t => setVal(t)}
-        />
+        <View>
+            <TouchableOpacity
+                    style={styles.input}
+                    onPress={() => hiddenInputRef.current.focus()}>
+                <TextInput
+                    style={{display: 'none'}}
+                    value={String(dollars)}
+                    keyboardType="numeric"
+                    ref={hiddenInputRef}
+                    onChangeText={updateDollars}
+                    maxWidth={5}
+                />
+                <Text style={styles.bigText}>{formattedDollars}</Text>
+            </TouchableOpacity>
+        </View>
     );
+
+    function updateDollars(text) {
+        let d = parseInt(text.replace(/[^0-9]/g), 10);
+        setDollars(isNaN(d) ? 0 : d);
+    }
 }
