@@ -1,41 +1,39 @@
 import React, { useState, useRef } from 'react';
-import { View, TextInput, Text, TouchableOpacity  } from 'react-native';
+import { View, TextInput, Text, TouchableWithoutFeedback  } from 'react-native';
 import styles from '../styles';
 
 export default function DollarInput(props) {
-    const [dollars, setDollars] = useState(0);
-    const hiddenInputRef = useRef();
-
-    const formattedDollars = dollars && !isNaN(dollars)
-        ? (
-            <>
-                <Text style={{color:'#c0c0c0'}}>$</Text>{
-                 dollars
-                }<Text style={{color:'#c0c0c0'}}>.00</Text>
-            </>
-          )
-        : (<Text style={{color:'#c0c0c0'}}>$</Text>);
+    const [isFocused, setFocused] = useState(false);
+    const [textValue, setValue] = useState("");
+    const inputRef = useRef();
 
     return (
         <View>
-            <TouchableOpacity
-                    style={styles.input}
-                    onPress={() => hiddenInputRef.current.focus()}>
-                <TextInput
-                    style={{display: 'none'}}
-                    value={String(dollars)}
-                    keyboardType="numeric"
-                    ref={hiddenInputRef}
-                    onChangeText={updateDollars}
-                    maxWidth={5}
-                />
-                <Text style={styles.bigText}>{formattedDollars}</Text>
-            </TouchableOpacity>
+            <TouchableWithoutFeedback
+                    onPress={() => isFocused || inputRef.current.focus()}>
+                <View
+                        style={
+                            {...styles.input, flexDirection: "row"}
+                        }>
+                    <Text style={styles.bigText}>$</Text>
+                    <TextInput
+                        style={styles.bigText}
+                        value={textValue}
+                        keyboardType="numeric"
+                        ref={inputRef}
+                        onChangeText={updateAmt}
+                        maxLength={5}
+                        onPress={e => e.stopPropagation()}
+                        onFocus={() => setFocused(true)}
+                        onBlur={() => setFocused(false)}
+                    />
+                    { textValue ? <Text style={styles.bigText}>.00</Text> : null }
+                </View>
+            </TouchableWithoutFeedback>
         </View>
     );
 
-    function updateDollars(text) {
-        let d = parseInt(text.replace(/[^0-9]/g), 10);
-        setDollars(isNaN(d) ? 0 : d);
+    function updateAmt(text) {
+        setValue(text.toString().replace(/[^0-9]/g, "").replace(/^0+/, ""));
     }
 }
